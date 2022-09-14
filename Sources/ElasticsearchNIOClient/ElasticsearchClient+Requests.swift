@@ -97,6 +97,18 @@ extension ElasticsearchClient {
         }
     }
 
+    public func createDocument<Document: Encodable, ID: Hashable>(_ document: Document, with id: ID, in indexName: String) -> EventLoopFuture<ESCreateDocumentResponse> {
+        do {
+            let url = try buildURL(path: "/\(indexName)/_doc/\(id)")
+            let body = try ByteBuffer(data: self.jsonEncoder.encode(document))
+            var headers = HTTPHeaders()
+            headers.add(name: "content-type", value: "application/json")
+            return sendRequest(url: url, method: .POST, headers: headers, body: body)
+        } catch {
+            return self.eventLoop.makeFailedFuture(error)
+        }
+    }
+
     public func createDocumentWithID<Document: Encodable & Identifiable>(_ document: Document, in indexName: String) -> EventLoopFuture<ESCreateDocumentResponse> {
         do {
             let url = try buildURL(path: "/\(indexName)/_doc/\(document.id)")

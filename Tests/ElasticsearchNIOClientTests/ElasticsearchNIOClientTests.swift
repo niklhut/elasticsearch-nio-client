@@ -93,6 +93,14 @@ class ElasticSearchIntegrationTests: XCTestCase {
         XCTAssertEqual(response.result, "created")
     }
 
+    func testCreateDocumentWithSpecifiedID() throws {
+        let item = SomeItem(id: UUID(), name: "Banana")
+        let response = try client.createDocument(item, with: item.id, in: self.indexName).wait()
+        XCTAssertEqual(item.id.uuidString, response.id)
+        XCTAssertEqual(response.index, self.indexName)
+        XCTAssertEqual(response.result, "created")
+    }
+
     func testCreateDocumentWithID() throws {
         let item = SomeItem(id: UUID(), name: "Banana")
         let response = try client.createDocumentWithID(item, in: self.indexName).wait()
